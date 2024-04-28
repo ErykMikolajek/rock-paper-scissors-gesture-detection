@@ -75,7 +75,7 @@ if __name__ == '__main__':
                 finger_gesture_id = 0
 
                 # Drawing part
-                # org_image = draw_bounding_rect(use_bound_rect, org_image, bound_rect)
+                org_image = draw_bounding_rect(use_bound_rect, org_image, bound_rect)
                 # org_image = draw_landmarks(org_image, landmark_list)
                 # org_image = draw_info_text(
                 #     org_image,
