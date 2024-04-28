@@ -11,9 +11,11 @@ class ModelSubClassing(tf.keras.Model):
         self.num_classes = len(classes)
         self.input = tf.keras.layers.InputLayer()
         self.dense1 = tf.keras.layers.Dense(100)
+        self.dropout1 = tf.keras.layers.Dropout(0.2)
         self.dense2 = tf.keras.layers.Dense(100)
+        self.dropout2 = tf.keras.layers.Dropout(0.2)
         self.dense3 = tf.keras.layers.Dense(100)
-        self.output = tf.keras.layers.Dense(self.num_classes)
+        self.output = tf.keras.layers.Dense(self.num_classes, activation="softmax")
 
     def train(self, input_tensor, training=False):
         # forward pass: block 1 
