@@ -85,34 +85,29 @@ def draw_landmarks(image, hand_landmarks, ):
 def draw_bounding_rect(use_bound_rect, image, bound_rect):
     if use_bound_rect:
         # Outer rectangle
-        cv2.rectangle(image, (bound_rect[0], bound_rect[1]), (bound_rect[2], bound_rect[3]), (0, 0, 0), 1)
+        cv2.rectangle(image, (bound_rect[0], bound_rect[1]), (bound_rect[2], bound_rect[3]), (0, 0, 0), 3)
     return image
 
 
-def draw_info_text(image, bound_rect, handedness, hand_sign_text, finger_gesture_text):
+def draw_info_text(image, bound_rect, handedness, hand_gesture_text, hand_gesture_probability):
     cv2.rectangle(image, (bound_rect[0], bound_rect[1]), (bound_rect[2], bound_rect[1] - 22),
                   (0, 0, 0), -1)
-
-    info_text = handedness.classification[0].label[0:]
-    if hand_sign_text != "":
-        info_text = info_text + ':' + hand_sign_text
+    hand_gesture_text = hand_gesture_text.upper()
+    # handedness = handedness.classification[0].label[0:]
+    hand_gesture_probability = round(hand_gesture_probability, 2)
+    info_text = ""
+    if hand_gesture_text != "":
+        info_text = hand_gesture_text + ", " + str(hand_gesture_probability)
+        # info_text = hand_gesture_text
     cv2.putText(image, info_text, (bound_rect[0] + 5, bound_rect[1] - 4),
-               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
-
-    if finger_gesture_text != "":
-        cv2.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
-                   cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv2.LINE_AA)
-        cv2.putText(image, "Finger Gesture:" + finger_gesture_text, (10, 60),
-                   cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
-                   cv2.LINE_AA)
-
+                cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
     return image
 
 
 def draw_info(image, fps, mode, number):
-    cv2.putText(image, "FPS:" + str(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
+    cv2.putText(image, "FPS:" + str(fps), (10, 30), cv2.FONT_HERSHEY_DUPLEX,
                1.0, (0, 0, 0), 4, cv2.LINE_AA)
-    cv2.putText(image, "FPS:" + str(fps), (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
+    cv2.putText(image, "FPS:" + str(fps), (10, 30), cv2.FONT_HERSHEY_DUPLEX,
                1.0, (255, 255, 255), 2, cv2.LINE_AA)
 
     # TODO: change line below

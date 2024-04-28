@@ -4,6 +4,8 @@ import copy
 import numpy as np
 from utils import *
 
+from model.gesture_classifier_model import GestureClassifierModel
+
 
 def select_mode(key, mode):
     ret_number = -1
@@ -21,6 +23,10 @@ if __name__ == '__main__':
 
     mp_hands = mp.solutions.hands
     mp_drawing = mp.solutions.drawing_utils
+
+    model_path = 'model/gesture_classifier-v01'
+    gesture_classifier_model = GestureClassifierModel(model_path)
+    # print("Model loaded:", gesture_classifier_model.model.)
 
     cap = cv2.VideoCapture(0)
 
@@ -69,21 +75,18 @@ if __name__ == '__main__':
                 logging_csv(number, mode, pre_processed_landmark_list)
 
                 # Hand sign classification
-                # hand_sign_id = landmark_classifier(pre_processed_landmark_list)
-
-                # Finger gesture classification
-                finger_gesture_id = 0
+                hand_gesture, gesture_probability = gesture_classifier_model(pre_processed_landmark_list)
 
                 # Drawing part
                 org_image = draw_bounding_rect(use_bound_rect, org_image, bound_rect)
                 # org_image = draw_landmarks(org_image, landmark_list)
-                # org_image = draw_info_text(
-                #     org_image,
-                #     bound_rect,
-                #     handedness,
-                #     keypoint_classifier_labels[hand_sign_id],
-                #     point_history_classifier_labels[most_common_fg_id[0][0]],
-                # )
+                org_image = draw_info_text(
+                    org_image,
+                    bound_rect,
+                    handedness,
+                    gesture_classifier_model.classes[hand_gesture],
+                    gesture_probability
+                )
 
         org_image = draw_info(org_image, fps, mode, number)
 

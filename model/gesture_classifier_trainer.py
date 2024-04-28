@@ -1,36 +1,52 @@
 import tensorflow as tf
+import numpy as np
+from gesture_classifier_model import GestureClassifierModel
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
-dataset = 'model/landmarks_dataset.csv'
-model_save_path = 'model/gestures_classifier'
 
-classes = ['rock', 'paper', 'scissors']
+dataset = 'landmarks_dataset.csv'
 
-class ModelSubClassing(tf.keras.Model):
-    def __init__(self):
-        super().__init__()
-        self.num_classes = len(classes)
-        self.input = tf.keras.layers.InputLayer()
-        self.dense1 = tf.keras.layers.Dense(100)
-        self.dropout1 = tf.keras.layers.Dropout(0.2)
-        self.dense2 = tf.keras.layers.Dense(100)
-        self.dropout2 = tf.keras.layers.Dropout(0.2)
-        self.dense3 = tf.keras.layers.Dense(100)
-        self.output = tf.keras.layers.Dense(self.num_classes, activation="softmax")
 
-    def train(self, input_tensor, training=False):
-        # forward pass: block 1 
-        x = self.conv1(input_tensor)
-        x = self.max1(x)
-        x = self.bn1(x)
+class ModelTrainer:
+    def __init__(self, dataset_path, model_path):
+        self.model = GestureClassifierModel(model_path)
+        self.dataset_path = dataset_path
+        self.model_path = model_path
+        self.x_test = None
+        self.y_test = None
 
-        # forward pass: block 2 
-        x = self.conv2(x)
-        x = self.bn2(x)
+    def train(self, epochs, batch_size):
+        x_train, x_val, y_train, y_val = self.load_data(self.dataset_path)
 
-        # droput followed by gap and classifier
-        x = self.drop(x)
-        x = self.gap(x)
-        return self.dense(x)
+        model = self.model.build_model()
+        model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_val, y_val))
+        self.model.model = model
+
+    def save_model(self):
+        self.model.model.save(self.model_path)
+
+    def plot_results(self):
+        model_prediction = self.model(self.x_test)
+        model_prediction = np.argmax(model_prediction, axis=1)
+        print(classification_report(self.y_test, model_prediction))
         
     def load_data(self, file_path):
-        pass
+        x_data = np.loadtxt(file_path, delimiter=',', dtype='float32', usecols=list(range(1, 43)))
+        y_data = np.loadtxt(file_path, delimiter=',', dtype='int32', usecols=0)
+
+        x_train, x_val_test, y_train, y_val_test = train_test_split(x_data, y_data,
+                                                                    train_size=0.8, random_state=42)
+        x_test, x_val, y_test, y_val = train_test_split(x_data, y_data,
+                                                                    train_size=0.5, random_state=42)
+        self.x_test = x_test
+        self.y_test = y_test
+        return x_train, x_val, y_train, y_val
+
+
+if __name__ == '__main__':
+    trainer = ModelTrainer(dataset, 'gesture_classifier-v01')
+    trainer.train(100, 128)
+    trainer.save_model()
+    trainer.plot_results()
