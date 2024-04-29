@@ -22,6 +22,7 @@ class GestureClassifierModel:
         return self.model
 
     def load_model(self, model_path):
+        # TODO: try catch block
         # try:
         self.model = tf.keras.models.load_model(model_path)
         print("Model loaded successfully")
@@ -31,7 +32,14 @@ class GestureClassifierModel:
         if self.model is None:
             raise ValueError("Model not loaded or built")
         inputs = np.array(inputs)
-        prediction = self.model.predict(tf.expand_dims(inputs, axis=0), verbose=0)
-        class_index = np.argmax(prediction, axis=1)[0]
-        class_proba = tf.nn.softmax(prediction).numpy()[0, class_index]
-        return class_index, class_proba
+        if inputs.ndim < 2:
+            prediction = self.model.predict(tf.expand_dims(inputs, axis=0), verbose=0)
+            # print(tf.nn.softmax(prediction).numpy())
+            class_index = np.argmax(prediction, axis=1)[0]
+            class_proba = tf.nn.softmax(prediction).numpy()[0, class_index]
+            return class_index, class_proba
+        else:
+            prediction = self.model.predict(inputs, verbose=0)
+            class_index = np.argmax(prediction, axis=1)
+            return class_index
+

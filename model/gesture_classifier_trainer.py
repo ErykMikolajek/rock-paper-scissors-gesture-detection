@@ -29,7 +29,6 @@ class ModelTrainer:
 
     def plot_results(self):
         model_prediction = self.model(self.x_test)
-        model_prediction = np.argmax(model_prediction, axis=1)
         print(classification_report(self.y_test, model_prediction))
         
     def load_data(self, file_path):

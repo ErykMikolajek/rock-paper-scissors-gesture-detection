@@ -33,7 +33,6 @@ def calc_landmark_list(image, landmarks):
     for _, landmark in enumerate(landmarks.landmark):
         landmark_x = min(int(landmark.x * image_width), image_width - 1)
         landmark_y = min(int(landmark.y * image_height), image_height - 1)
-        # landmark_z = landmark.z
 
         landmark_point.append([landmark_x, landmark_y])
 
@@ -59,8 +58,6 @@ def pre_process_landmark(landmark_list):
     # Normalization
     max_value = max(list(map(abs, temp_landmark_list)))
 
-    # normalize_ =
-
     temp_landmark_list = list(map(lambda n: n / max_value, temp_landmark_list))
 
     return temp_landmark_list
@@ -69,17 +66,11 @@ def pre_process_landmark(landmark_list):
 def logging_csv(number, mode, landmark_list):
     if mode == 0:
         pass
-    if mode == 1 and (0 <= number <= 2):
+    if mode == 1 and (0 <= number <= 9):
         csv_path = 'model/landmarks_dataset.csv'
         with open(csv_path, 'a', newline="") as f:
             writer = csv.writer(f)
             writer.writerow([number, *landmark_list])
-
-
-def draw_landmarks(image, hand_landmarks, ):
-    # mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-    # TODO: implement
-    pass
 
 
 def draw_bounding_rect(use_bound_rect, image, bound_rect):
@@ -93,12 +84,12 @@ def draw_info_text(image, bound_rect, handedness, hand_gesture_text, hand_gestur
     cv2.rectangle(image, (bound_rect[0], bound_rect[1]), (bound_rect[2], bound_rect[1] - 22),
                   (0, 0, 0), -1)
     hand_gesture_text = hand_gesture_text.upper()
-    # handedness = handedness.classification[0].label[0:]
+    handedness = handedness.classification[0].label[0:]
     hand_gesture_probability = round(hand_gesture_probability, 2)
-    info_text = ""
-    if hand_gesture_text != "":
-        info_text = hand_gesture_text + ", " + str(hand_gesture_probability)
-        # info_text = hand_gesture_text
+    if hand_gesture_text != "" and hand_gesture_probability > 0.57:
+        info_text = hand_gesture_text + ", " + str(hand_gesture_probability) + ", " + handedness
+    else:
+        info_text = "UNDEFINED" + ", " + handedness
     cv2.putText(image, info_text, (bound_rect[0] + 5, bound_rect[1] - 4),
                 cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
     return image
