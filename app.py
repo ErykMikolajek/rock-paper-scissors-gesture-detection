@@ -10,7 +10,7 @@ from model.gesture_classifier_model import GestureClassifierModel
 def select_mode(key, mode):
     ret_number = -1
     ret_mode = mode
-    if 48 <= key <= 57:  # 0 ~ 2
+    if 48 <= key <= 59:  # 0 ~ 4
         ret_number = key - 48
     if key == 110:  # n
         ret_mode = 0

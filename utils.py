@@ -4,6 +4,19 @@ import copy
 import cv2
 import itertools
 import csv
+from tensorflow.keras import backend as K
+
+
+def f1_score(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+
+    precision = true_positives / (predicted_positives + K.epsilon())
+    recall = true_positives / (possible_positives + K.epsilon())
+
+    f1_val = 2 * (precision * recall) / (precision + recall + K.epsilon())
+    return f1_val
 
 
 def calc_bounding_rect(image, landmarks):
@@ -86,7 +99,7 @@ def draw_info_text(image, bound_rect, handedness, hand_gesture_text, hand_gestur
     hand_gesture_text = hand_gesture_text.upper()
     handedness = handedness.classification[0].label[0:]
     hand_gesture_probability = round(hand_gesture_probability, 2)
-    if hand_gesture_text != "" and hand_gesture_probability > 0.57:
+    if hand_gesture_text != "":# and hand_gesture_probability > 0.55:
         info_text = hand_gesture_text + ", " + str(hand_gesture_probability) + ", " + handedness
     else:
         info_text = "UNDEFINED" + ", " + handedness

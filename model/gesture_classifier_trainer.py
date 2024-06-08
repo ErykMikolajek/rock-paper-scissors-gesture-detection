@@ -3,6 +3,7 @@ import numpy as np
 from gesture_classifier_model import GestureClassifierModel
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+from utils import f1_score
 
 
 dataset = 'landmarks_dataset.csv'
@@ -20,8 +21,9 @@ class ModelTrainer:
         x_train, x_val, y_train, y_val = self.load_data(self.dataset_path)
 
         model = self.model.build_model()
-        model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=[f1_score])
         model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_val, y_val))
+
         self.model.model = model
 
     def save_model(self):
@@ -46,6 +48,6 @@ class ModelTrainer:
 
 if __name__ == '__main__':
     trainer = ModelTrainer(dataset, 'gesture_classifier-v01')
-    trainer.train(100, 128)
+    trainer.train(500, 128)
     trainer.save_model()
     trainer.plot_results()
