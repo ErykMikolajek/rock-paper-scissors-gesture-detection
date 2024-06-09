@@ -38,8 +38,13 @@ if __name__ == '__main__':
     fps_calc = FpsCalc(buffer_len=10)
     mode = 0
     use_bound_rect = True
+    left_player_score = 0
+    right_player_score = 0
+    player_gestures = {0: [], 1: []}
+    show_gestures = 100
 
     while True:
+        show_gestures -= 1
         fps = fps_calc.get()
 
         # Process Key (ESC: end)
@@ -60,39 +65,76 @@ if __name__ == '__main__':
         image.flags.writeable = True
         x, y, _ = image.shape
         # cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
+        if show_gestures%100 == 0:
+            show_gestures = 100
+            while True:
+                if len(results.multi_hand_landmarks) != 2:
+                    continue
+            # if results.multi_hand_landmarks is not None:
+                for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
+                                                    results.multi_handedness):
+                    # Bounding box calculation
+                    bound_rect = calc_bounding_rect(org_image, hand_landmarks)
+                    # Landmark calculation
+                    landmark_list = calc_landmark_list(org_image, hand_landmarks)
 
-        if results.multi_hand_landmarks is not None:
-            for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
-                                                  results.multi_handedness):
-                # Bounding box calculation
-                bound_rect = calc_bounding_rect(org_image, hand_landmarks)
-                # Landmark calculation
-                landmark_list = calc_landmark_list(org_image, hand_landmarks)
+                    # Conversion to relative coordinates / normalized coordinates
+                    pre_processed_landmark_list = pre_process_landmark(
+                        landmark_list)
+                    # Write to the dataset file
+                    # logging_csv(number, mode, pre_processed_landmark_list)
 
-                # Conversion to relative coordinates / normalized coordinates
-                pre_processed_landmark_list = pre_process_landmark(
-                    landmark_list)
-                # Write to the dataset file
-                logging_csv(number, mode, pre_processed_landmark_list)
+                    # Hand sign classification
+                    hand_gesture, gesture_probability = gesture_classifier_model(pre_processed_landmark_list)
 
-                # Hand sign classification
-                hand_gesture, gesture_probability = gesture_classifier_model(pre_processed_landmark_list)
+                    # Drawing part
+                    org_image = draw_bounding_rect(use_bound_rect, org_image, bound_rect)
+                    org_image = draw_info_text(
+                        org_image,
+                        bound_rect,
+                        handedness,
+                        gesture_classifier_model.classes[hand_gesture],
+                        gesture_probability
+                    )
 
-                # Drawing part
-                org_image = draw_bounding_rect(use_bound_rect, org_image, bound_rect)
-                org_image = draw_info_text(
-                    org_image,
-                    bound_rect,
-                    handedness,
-                    gesture_classifier_model.classes[hand_gesture],
-                    gesture_probability
-                )
+                    mp_drawing.draw_landmarks(org_image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-                mp_drawing.draw_landmarks(org_image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                    # if hand_landmarks.landmark[0].x * y < y // 2:
+                    #     player_gestures[0] = hand_gesture
+                    # else:
+                    #     player_gestures[1] = hand_gesture
+
+                    if handedness.classification[0].label == 'Left':
+                        player_gestures[0] = hand_gesture
+                    else:
+                        player_gestures[1] = hand_gesture
+
+                print(player_gestures[0], player_gestures[1])
+                
+                if len(player_gestures) == 2:
+                    winner = define_winner(player_gestures[0], player_gestures[1])
+                    print(winner)
+                    if winner == 1:
+                        left_player_score += 1
+                    elif winner == 2:
+                        right_player_score += 1
+                    elif winner == 0:
+                        cv2.putText(org_image, 'Draw', (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+                    else:
+                        cv2.putText(org_image, 'Undefined', (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+
+                player_gestures = {0: [], 1: []}
+                break
 
         org_image = draw_info(org_image, fps, mode, number)
+        cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
+        # big red counter
+        cv2.putText(org_image, f'Time: {show_gestures}', (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(org_image, f'Left: {left_player_score}', (10, x - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        cv2.putText(org_image, f'Right: {right_player_score}', (y - 150, x - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
         cv2.imshow('Hand Gesture Recognition', org_image)
+
 
     cap.release()
     cv2.destroyAllWindows()

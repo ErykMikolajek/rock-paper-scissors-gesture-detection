@@ -126,6 +126,58 @@ def draw_info(image, fps, mode, number):
                        cv2.LINE_AA)
     return image
 
+def define_winner(left_player_gesture, right_player_gesture):
+    #['rock', 'paper', 'scissors', 'lizard', 'spock']
+    if left_player_gesture == right_player_gesture: # Draw
+        return 0
+    elif left_player_gesture == 0 and right_player_gesture == 1: # Rock vs Paper
+        return 2
+    elif left_player_gesture == 0 and right_player_gesture == 2: # Rock vs Scissors
+        return 1
+    elif left_player_gesture == 0 and right_player_gesture == 3: # Rock vs Lizard
+        return 1
+    elif left_player_gesture == 0 and right_player_gesture == 4: # Rock vs Spock
+        return 2
+    
+    elif left_player_gesture == 1 and right_player_gesture == 0: # Paper vs Rock
+        return 1
+    elif left_player_gesture == 1 and right_player_gesture == 2: # Paper vs Scissors
+        return 2
+    elif left_player_gesture == 1 and right_player_gesture == 3: # Paper vs Lizard
+        return 2
+    elif left_player_gesture == 1 and right_player_gesture == 4: # Paper vs Spock
+        return 1
+    
+    elif left_player_gesture == 2 and right_player_gesture == 0: # Scissors vs Rock
+        return 2
+    elif left_player_gesture == 2 and right_player_gesture == 1: # Scissors vs Paper
+        return 1
+    elif left_player_gesture == 2 and right_player_gesture == 3: # Scissors vs Lizard
+        return 1
+    elif left_player_gesture == 2 and right_player_gesture == 4: # Scissors vs Spock
+        return 2
+    
+    elif left_player_gesture == 3 and right_player_gesture == 0: # Lizard vs Rock
+        return 2
+    elif left_player_gesture == 3 and right_player_gesture == 1: # Lizard vs Paper
+        return 1
+    elif left_player_gesture == 3 and right_player_gesture == 2: # Lizard vs Scissors
+        return 2
+    elif left_player_gesture == 3 and right_player_gesture == 4: # Lizard vs Spock
+        return 1
+    
+    elif left_player_gesture == 4 and right_player_gesture == 0: # Spock vs Rock
+        return 1
+    elif left_player_gesture == 4 and right_player_gesture == 1: # Spock vs Paper
+        return 2
+    elif left_player_gesture == 4 and right_player_gesture == 2: # Spock vs Scissors
+        return 1
+    elif left_player_gesture == 4 and right_player_gesture == 3: # Spock vs Lizard
+        return 2
+    
+    else: # Undefined
+        return -1
+
 
 class FpsCalc(object):
     def __init__(self, buffer_len=1):
