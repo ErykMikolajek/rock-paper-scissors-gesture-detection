@@ -41,10 +41,12 @@ if __name__ == '__main__':
     left_player_score = 0
     right_player_score = 0
     player_gestures = {0: [], 1: []}
-    show_gestures = 100
+    show_gestures = 99
+    announce_winner = False
+    text = ''
+
 
     while True:
-        show_gestures -= 1
         fps = fps_calc.get()
 
         # Process Key (ESC: end)
@@ -64,13 +66,10 @@ if __name__ == '__main__':
         results = hands.process(image)
         image.flags.writeable = True
         x, y, _ = image.shape
+
         # cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
         if show_gestures%100 == 0:
-            show_gestures = 100
-            while True:
-                if len(results.multi_hand_landmarks) != 2:
-                    continue
-            # if results.multi_hand_landmarks is not None:
+            if results.multi_hand_landmarks is not None and len(results.multi_hand_landmarks) == 2:
                 for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
                                                     results.multi_handedness):
                     # Bounding box calculation
@@ -99,41 +98,50 @@ if __name__ == '__main__':
 
                     mp_drawing.draw_landmarks(org_image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-                    # if hand_landmarks.landmark[0].x * y < y // 2:
-                    #     player_gestures[0] = hand_gesture
-                    # else:
-                    #     player_gestures[1] = hand_gesture
-
-                    if handedness.classification[0].label == 'Left':
+                    if hand_landmarks.landmark[0].x * y < y // 2:
                         player_gestures[0] = hand_gesture
                     else:
                         player_gestures[1] = hand_gesture
 
-                print(player_gestures[0], player_gestures[1])
-                
-                if len(player_gestures) == 2:
-                    winner = define_winner(player_gestures[0], player_gestures[1])
-                    print(winner)
-                    if winner == 1:
-                        left_player_score += 1
-                    elif winner == 2:
-                        right_player_score += 1
-                    elif winner == 0:
-                        cv2.putText(org_image, 'Draw', (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
-                    else:
-                        cv2.putText(org_image, 'Undefined', (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+                    # if handedness.classification[0].label == 'Left':
+                    #     player_gestures[0] = hand_gesture
+                    # else:
+                    #     player_gestures[1] = hand_gesture
 
-                player_gestures = {0: [], 1: []}
-                break
+                print(player_gestures[0], player_gestures[1])
+
+                # if len(player_gestures[0]) > 0 and len(player_gestures[1]) > 0:
+                winner = define_winner(player_gestures[0], player_gestures[1])
+                print(winner)
+                if winner == 1:
+                    left_player_score += 1
+                    text = 'Left Player Wins'
+                elif winner == 2:
+                    right_player_score += 1
+                    text = 'Right Player Wins'
+                elif winner == 0:
+                    text = 'Draw'
+                else:
+                    text = 'Undefined'
+                cv2.putText(org_image, text, (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                announce_winner = True
 
         org_image = draw_info(org_image, fps, mode, number)
         cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
         # big red counter
-        cv2.putText(org_image, f'Time: {show_gestures}', (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        if show_gestures > 0:
+            cv2.putText(org_image, f'Time: {show_gestures}', (y // 2 - 50, x // 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            show_gestures -= 1
         cv2.putText(org_image, f'Left: {left_player_score}', (10, x - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         cv2.putText(org_image, f'Right: {right_player_score}', (y - 150, x - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
-
         cv2.imshow('Hand Gesture Recognition', org_image)
+
+        if announce_winner:
+            cv2.waitKey(2000)
+            show_gestures = 99
+            player_gestures = {0: [], 1: []}
+            announce_winner = False
+            text = ''
 
 
     cap.release()
