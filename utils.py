@@ -100,7 +100,8 @@ def draw_info_text(image, bound_rect, handedness, hand_gesture_text, hand_gestur
     handedness = handedness.classification[0].label[0:]
     hand_gesture_probability = round(hand_gesture_probability, 2)
     if hand_gesture_text != "":# and hand_gesture_probability > 0.55:
-        info_text = hand_gesture_text + ", " + str(hand_gesture_probability) + ", " + handedness
+        # info_text = hand_gesture_text + ", " + str(hand_gesture_probability) + ", " + handedness
+        info_text = hand_gesture_text + ", " + handedness
     else:
         info_text = "UNDEFINED" + ", " + handedness
     cv2.putText(image, info_text, (bound_rect[0] + 5, bound_rect[1] - 4),

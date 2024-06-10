@@ -68,6 +68,7 @@ if __name__ == '__main__':
         x, y, _ = image.shape
 
         # cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
+        cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
         if show_gestures % 100 == 0:
             if results.multi_hand_landmarks is not None and len(results.multi_hand_landmarks) == 2:
                 for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
@@ -123,19 +124,18 @@ if __name__ == '__main__':
                     text = 'Draw'
                 else:
                     text = 'Undefined'
-                cv2.putText(org_image, text, (y // 2 - 75, x // 2),
+                cv2.putText(org_image, text, (y // 2 - 150, x // 2),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4, cv2.LINE_AA)
-                cv2.putText(org_image, text, (y // 2 - 75, x // 2),
+                cv2.putText(org_image, text, (y // 2 - 150, x // 2),
                             cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                 announce_winner = True
 
-        org_image = draw_info(org_image, fps, mode, number)
-        cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
+        # org_image = draw_info(org_image, fps, mode, number)
         # big red counter
         if show_gestures > 0:
-            cv2.putText(org_image, f'Time: {show_gestures}', (y // 2 - 50, x // 2),
+            cv2.putText(org_image, f'Time: {show_gestures // 20}', (y // 2 - 50, x // 2),
                         cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 4, cv2.LINE_AA)
-            cv2.putText(org_image, f'Time: {show_gestures}', (y // 2 - 50, x // 2),
+            cv2.putText(org_image, f'Time: {show_gestures // 20}', (y // 2 - 50, x // 2),
                         cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             show_gestures -= 1
         cv2.putText(org_image, f'Left player score: {left_player_score}', (10, x - 10),
