@@ -41,7 +41,7 @@ if __name__ == '__main__':
     left_player_score = 0
     right_player_score = 0
     player_gestures = {0: [], 1: []}
-    show_gestures = 99
+    show_gestures = 80
     announce_winner = False
     text = ''
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
         # cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
         cv2.line(org_image, (y // 2, 0), (y // 2, x), (0, 0, 0), 5)
-        if show_gestures % 100 == 0 or mode == 1:
+        if show_gestures == 0 or mode == 1:
             if results.multi_hand_landmarks is not None and len(results.multi_hand_landmarks) == 2:
                 for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
                                                     results.multi_handedness):
@@ -121,20 +121,33 @@ if __name__ == '__main__':
                     if winner == 1:
                         left_player_score += 1
                         text = 'Left Player Wins'
+                        cv2.putText(org_image, text, (y // 2 - 150, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4, cv2.LINE_AA)
+                        cv2.putText(org_image, text, (y // 2 - 150, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                     elif winner == 2:
                         right_player_score += 1
                         text = 'Right Player Wins'
+                        cv2.putText(org_image, text, (y // 2 - 150, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4, cv2.LINE_AA)
+                        cv2.putText(org_image, text, (y // 2 - 150, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                     elif winner == 0:
                         text = 'Draw'
+                        cv2.putText(org_image, text, (y // 2 - 50, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4, cv2.LINE_AA)
+                        cv2.putText(org_image, text, (y // 2 - 50, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                     else:
                         text = 'Undefined'
-                    cv2.putText(org_image, text, (y // 2 - 150, x // 2),
-                                cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4, cv2.LINE_AA)
-                    cv2.putText(org_image, text, (y // 2 - 150, x // 2),
-                                cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(org_image, text, (y // 2 - 50, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 255, 0), 4, cv2.LINE_AA)
+                        cv2.putText(org_image, text, (y // 2 - 50, x // 2),
+                                    cv2.FONT_HERSHEY_DUPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
                     announce_winner = True
 
-        # org_image = draw_info(org_image, fps, mode, number)
+        org_image = draw_info(org_image, fps, mode, 10)
         # big red counter
         if show_gestures > 0:
             cv2.putText(org_image, f'Time: {show_gestures // 20}', (y // 2 - 50, x // 2),
@@ -155,7 +168,7 @@ if __name__ == '__main__':
 
         if announce_winner:
             cv2.waitKey(2000)
-            show_gestures = 99
+            show_gestures = 80
             player_gestures = {0: [], 1: []}
             announce_winner = False
             text = ''
