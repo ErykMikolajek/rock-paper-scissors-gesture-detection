@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 If you need to train the gesture classifier model, run the following script:
 ```bash
-python gesture_classifier_trainer.py
+python model/gesture_classifier_trainer.py
 ```
 Once the model is trained, you can start the application by running:
 ```bash
